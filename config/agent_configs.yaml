@@ -1,0 +1,29 @@
+# Agent Configuration
+# System settings and parameters for each agent
+
+research_agent:
+  name: "ResearchAgent"
+  model: "gpt-4"  # Can be changed to gpt-3.5-turbo or other models
+  temperature: 0.3
+  max_tokens: 2000
+  max_sources: 5
+  search_timeout: 30
+
+analysis_agent:
+  name: "AnalysisAgent"
+  model: "gpt-4"
+  temperature: 0.5
+  max_tokens: 2500
+  min_confidence_threshold: 0.6
+
+writing_agent:
+  name: "WritingAgent"
+  model: "gpt-4"
+  temperature: 0.7
+  max_tokens: 3000
+  output_format: "markdown"
+
+workflow:
+  max_rounds: 10
+  human_input_mode: "NEVER"
+  enable_termination: true

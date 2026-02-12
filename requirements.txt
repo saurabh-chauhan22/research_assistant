@@ -1,0 +1,22 @@
+# Research Assistant Multi-Agent System - Dependencies
+# Python 3.10+ required
+
+# Core Framework - Microsoft AutoGen
+autogen-agentchat>=0.7.0
+autogen-ext[openai]>=0.7.0
+
+# API Clients
+requests>=2.31.0
+
+# Configuration Management
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Optional: For enhanced logging and monitoring
+# colorlog>=6.7.0
+
+# Development Dependencies (optional)
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+# black>=23.7.0
+# mypy>=1.5.0

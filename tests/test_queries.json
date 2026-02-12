@@ -1,0 +1,35 @@
+{
+  "test_queries": [
+    {
+      "query": "What are the latest developments in quantum computing?",
+      "category": "technology",
+      "expected_sources": 3
+    },
+    {
+      "query": "Explain the impact of climate change on global agriculture",
+      "category": "science",
+      "expected_sources": 4
+    },
+    {
+      "query": "What are the key features of Python 3.12?",
+      "category": "programming",
+      "expected_sources": 3
+    },
+    {
+      "query": "Compare renewable energy sources: solar vs wind power",
+      "category": "energy",
+      "expected_sources": 5
+    },
+    {
+      "query": "What are the health benefits of regular exercise?",
+      "category": "health",
+      "expected_sources": 4
+    }
+  ],
+  "baseline_queries": [
+    {
+      "query": "What is artificial intelligence?",
+      "description": "Simple factual query for baseline comparison"
+    }
+  ]
+}
