@@ -172,30 +172,6 @@ python main.py
 # Then: Query: ... | report | quit
 ```
 
-### Programmatic
-
-```python
-from main import load_config, load_prompts, initialize_agents, process_query
-from pathlib import Path
-
-config_dir = Path("config")
-config = load_config(config_dir / "agent_configs.yaml")
-prompts = load_prompts(config_dir / "prompts.yaml")
-research_agent, analysis_agent, writing_agent = initialize_agents(config, prompts)
-
-from orchestration.workflow import ResearchWorkflow
-workflow = ResearchWorkflow(
-    research_agent=research_agent,
-    analysis_agent=analysis_agent,
-    writing_agent=writing_agent,
-    workflow_config=config["workflow"]
-)
-
-result = workflow.execute("Your research query here")
-print(result["final_output"])
-# result["sources"] → list of { "title", "url" }
-```
-
 ## Project Structure
 
 ```
