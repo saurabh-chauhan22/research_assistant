@@ -1,176 +1,146 @@
 # Research Assistant Multi-Agent System - Project Summary
 
-A production-grade Research Assistant Multi-Agent System built using Microsoft AutoGen framework.
+A production-grade Research Assistant with a **multi-agent backend** (Microsoft AutoGen) and a **React Web UI** that talks to a FastAPI server.
 
 ## 📁 Project Structure
 
 ```
-Research_Assistent/
-├── agents/                    ✅ Three specialized agents implemented
-│   ├── research_agent.py     ✅ Tavily API integration with function calling
-│   ├── analysis_agent.py     ✅ Synthesis and pattern recognition
-│   └── writing_agent.py      ✅ Formatted output generation
-├── orchestration/             ✅ Workflow management
-│   └── workflow.py           ✅ Sequential agent coordination
-├── evaluation/                ✅ Metrics and assessment
-│   └── metrics.py            ✅ Quality scoring and reporting
-├── config/                    ✅ Configuration files
-│   ├── agent_configs.yaml    ✅ Agent settings
-│   └── prompts.yaml           ✅ System prompts
-├── utils/                     ✅ Shared utilities
-│   ├── logging_config.py     ✅ Comprehensive logging
-│   └── api_client.py         ✅ Tavily client with retry logic
-├── tests/                     ✅ Test data
-│   └── test_queries.json     ✅ Sample queries
-├── main.py                    ✅ CLI entry point
-├── setup_check.py            ✅ Setup verification
-├── requirements.txt          ✅ Dependencies
-├── .env.example              ✅ Environment template
-├── .gitignore                ✅ Git ignore rules
-├── README.md                 ✅ Full documentation
-├── QUICKSTART.md            ✅ Quick start guide
-└── PROJECT_SUMMARY.md       ✅ This file
+research_assistant/
+├── agents/                    # Three specialized agents
+│   ├── research_agent.py     # Tavily API integration, source formatting
+│   ├── analysis_agent.py     # Synthesis and pattern recognition
+│   └── writing_agent.py      # Markdown output, citations, sources
+├── orchestration/
+│   └── workflow.py           # Sequential Research → Analysis → Writing
+├── evaluation/                # Metrics and assessment
+│   └── metrics.py            # Quality scoring and reporting
+├── server/                    # FastAPI backend
+│   ├── api.py                # App, CORS, router mount
+│   └── search_api.py         # GET /api/search?query=...
+├── front_end/                 # React Web UI
+│   ├── src/
+│   │   ├── application/      # Chat UI (search bar, answer, sources)
+│   │   └── services/         # API client (search)
+│   ├── vite.config.js        # Proxy /api → backend, long timeouts
+│   └── package.json
+├── config/
+│   ├── agent_configs.yaml    # Agent settings
+│   └── prompts.yaml          # System prompts
+├── utils/
+│   ├── logging_config.py     # Logging setup
+│   └── api_client.py         # Tavily client with retry logic
+├── tests/
+│   └── test_queries.json     # Sample queries
+├── main.py                    # CLI entry point (optional)
+├── setup_check.py             # Setup verification
+├── requirements.txt           # Python dependencies
+├── .env.example               # Environment template
+├── README.md                  # Full documentation
+├── QUICKSTART.md              # Quick start guide
+└── PROJECT_SUMMARY.md         # This file
 ```
 
-## 🎯 Key Features 
+## 🎯 Key Features
 
-### ✅ Multi-Agent Architecture
-- **Research Agent**: Web search with Tavily API, source extraction, structured findings
-- **Analysis Agent**: Pattern recognition, synthesis, confidence assessment
-- **Writing Agent**: Markdown formatting, citations, executive summaries
+### ✅ Multi-Agent Backend
+- **Research Agent**: Tavily Search API, structured sources with title + URL
+- **Analysis Agent**: Pattern recognition, synthesis, confidence
+- **Writing Agent**: Markdown report, citations [1]…[n], Sources section
+
+### ✅ FastAPI Backend
+- **GET /api/search?query=...** — runs the workflow, returns `final_output`, `sources` (title + URL), `sources_count`, timing, errors
+- CORS enabled for the frontend
+- Long-running requests supported (research can take minutes)
+
+### ✅ React Web UI
+- **Search bar** — enter a question, submit to backend
+- **Loading state** — spinner and message while the backend runs
+- **Answer** — markdown-rendered report (headings, lists, links)
+- **Sources** — numbered list of clickable links (title + URL)
+- Bootstrap/Bootswatch (Lux) theme; Vite dev server with proxy to API
+
+### ✅ CLI (Optional)
+- **Single query**: `python main.py "Your query"`
+- **Interactive**: `python main.py` then type queries, `report` for metrics, `quit` to exit
 
 ### ✅ Production Features
-- ✅ Error handling with graceful degradation
-- ✅ Retry logic with exponential backoff
-- ✅ Comprehensive logging (console + file)
-- ✅ Environment variable management
-- ✅ Conversation history tracking
-- ✅ Input validation
+- Error handling and graceful degradation
+- Retry logic with exponential backoff (Tavily)
+- Logging (console + file)
+- Environment variables for API keys
+- Conversation history in workflow
+- Input validation
 
 ### ✅ Evaluation Framework
-- ✅ Processing time tracking
-- ✅ Source count and diversity metrics
-- ✅ Quality scores (relevance, completeness, coherence)
-- ✅ JSON evaluation reports
-- ✅ Baseline comparison capability
-
-### ✅ Code Quality
-- ✅ Type hints throughout
-- ✅ Comprehensive docstrings
-- ✅ PEP 8 compliance
-- ✅ Separation of concerns
-- ✅ Modular design
+- Processing time, source count, output length
+- Quality scores (relevance, completeness, coherence)
+- JSON evaluation reports in `evaluation_reports/`
+- Baseline comparison (optional)
 
 ## 🔧 Technical Stack
 
-- **Framework**: Microsoft AutoGen (autogen-agentchat)
-- **Language**: Python 3.10+
+- **Backend**: Python 3.10+, FastAPI, Microsoft AutoGen
 - **APIs**: OpenAI GPT-4, Tavily Search
-- **Configuration**: YAML files
-- **Logging**: Python logging module
-- **Environment**: python-dotenv
+- **Frontend**: React 18, Vite, Bootstrap/Bootswatch Lux, react-markdown, remark-gfm
+- **Config**: YAML (agents, prompts), `.env` for keys
 
 ## 📊 Workflow
 
 ```
-User Query
+User Query (CLI or Web UI)
     ↓
-Research Agent (Tavily Search API)
+Research Agent (Tavily Search → formatted sources)
     ↓
-Analysis Agent (Synthesis & Reasoning)
+Analysis Agent (Synthesis & reasoning)
     ↓
-Writing Agent (Formatting & Citations)
+Writing Agent (Markdown report + citations)
     ↓
-Final Output (Markdown Report)
+Result: final_output + sources[] (title, url) → UI or CLI output
 ```
 
 ## 🚀 Getting Started
 
-1. **Install dependencies:**
+1. **Python env and deps**
    ```bash
+   python -m venv venv
+   venv\Scripts\activate   # Windows
    pip install -r requirements.txt
    ```
 
-2. **Set up API keys in `.env`:**
-   - OPENAI_API_KEY
-   - TAVILY_API_KEY
+2. **Environment**
+   - Copy `.env.example` to `.env`
+   - Set `OPENAI_API_KEY` and `TAVILY_API_KEY`
 
-3. **Run verification:**
+3. **Verify**
    ```bash
    python setup_check.py
    ```
 
-4. **Execute query:**
-   ```bash
-   python main.py "Your research query here"
-   ```
+4. **Run**
+   - **Web UI**: Start API (`uvicorn server.api:app --reload --port 8000`), then frontend (`cd front_end && npm install && npm run dev`). Open http://localhost:5173.
+   - **CLI**: `python main.py "Your research query"`
 
 ## 📝 Configuration
 
-- **Agent Settings**: `config/agent_configs.yaml`
-- **Agent Prompts**: `config/prompts.yaml`
-- **Environment**: `.env` file
+- **Agent settings**: `config/agent_configs.yaml`
+- **Prompts**: `config/prompts.yaml`
+- **Environment**: `.env`
 
 ## 📈 Output
 
-- **Research Reports**: `outputs/research_output_[timestamp].md`
-- **Evaluation Reports**: `evaluation_reports/report_[date].json`
+- **Reports**: `outputs/research_output_[timestamp].md`
+- **Evaluation**: `evaluation_reports/report_[date].json`
 - **Logs**: `logs/research_assistant_[date].log`
 
-## 🔍 Evaluation Metrics
+## 🔄 Optional Enhancements
 
-Each query generates metrics:
-- Processing time
-- Source count
-- Output length
-- Quality scores (0-1 scale)
-- Comparison with baseline (if provided)
-
-## 🛡️ Error Handling
-
-- API failures → Retry with exponential backoff
-- Missing keys → Clear error messages
-- Invalid queries → Graceful handling
-- Partial failures → System continues operation
-- All errors → Logged with full context
-
-## 📚 Documentation
-
-- **README.md**: Complete system documentation
-- **QUICKSTART.md**: 5-minute setup guide
-- **Code**: Inline comments and docstrings
-- **Config files**: YAML with comments
-
-## ✨ Design Highlights
-
-1. **Modular Architecture**: Easy to extend or modify individual agents
-2. **Version Compatibility**: Works with multiple AutoGen versions
-3. **Production Ready**: Comprehensive error handling and logging
-4. **Evaluable**: Built-in metrics and quality assessment
-5. **Maintainable**: Clean code structure and documentation
-
-## 🎓 Learning Resources
-
-The codebase demonstrates:
-- Multi-agent system design
-- AutoGen framework usage
-- API integration patterns
-- Error handling best practices
-- Evaluation framework design
-- Production-grade Python development
-
-## 🔄 Next Steps (Optional Enhancements)
-
-- Add caching layer for repeated queries
-- Implement streaming responses
-- Add web UI interface
-- Integrate additional data sources
-- Add fact-checking agent
-- Implement conversation memory
-- Add user feedback loop
+- Caching for repeated queries
+- Streaming responses
+- Additional data sources
+- Fact-checking agent
+- Conversation memory / user feedback
 
 ---
 
-**Status**: ✅ Production-Ready
-**Version**: 1.0.0
-**Last Updated**: 2026-02-12
+**Status**: Production-ready (backend + Web UI + CLI)  
+**Last Updated**: 2026-02-23
