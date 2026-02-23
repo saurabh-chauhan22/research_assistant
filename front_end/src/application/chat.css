@@ -1,0 +1,55 @@
+/* Chat-specific overrides on top of Bootstrap / Bootswatch */
+
+.answer-text {
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.answer-markdown {
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.answer-markdown h1, .answer-markdown h2, .answer-markdown h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.answer-markdown p { margin-bottom: 0.75rem; }
+.answer-markdown ul, .answer-markdown ol { padding-left: 1.25rem; }
+.answer-markdown a { color: var(--bs-primary); }
+.answer-markdown a:hover { text-decoration: underline; }
+
+.sources-section .sources-list { padding-left: 1.5rem; }
+.sources-section .source-link {
+  color: var(--bs-primary);
+  font-weight: 500;
+}
+.sources-section .source-link:hover {
+  text-decoration: underline;
+}
+.sources-section .source-url {
+  word-break: break-all;
+}
+
+.input-group .form-control:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.input-group .btn {
+  font-weight: 500;
+}
+
+.card {
+  border-radius: 0.5rem;
+}
+
+.card-body.pre-wrap pre.answer-text {
+  white-space: pre-wrap;
+}
