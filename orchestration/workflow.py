@@ -152,6 +152,7 @@ class ResearchWorkflow:
                 "processing_time_seconds": processing_time,
                 "timestamp": end_time.isoformat(),
                 "sources_count": len(sources) if sources else 0,
+                "sources": sources or [],
                 "conversation_history": self.conversation_history if save_history else []
             }
             
@@ -209,47 +210,50 @@ class ResearchWorkflow:
     def _extract_sources(self, research_response: str) -> List[Dict[str, str]]:
         """
         Extract source information from research response.
-        
-        Args:
-            research_response: Research agent's response string
-            
-        Returns:
-            List of source dictionaries
+        Handles format: "[1] Title\\nURL: https://..."
         """
+        import re
         research_response = self._ensure_str(research_response)
         sources = []
-        # Simple extraction - look for URL patterns
-        import re
-        url_pattern = r'https?://[^\s]+'
-        urls = re.findall(url_pattern, research_response)
-        
-        # Try to extract titles and URLs together
+        url_pattern = re.compile(r'https?://[^\s\)\]\>]+')
         lines = research_response.split('\n')
         current_source = {}
-        
-        for line in lines:
-            if line.strip().startswith('[') and ']' in line:
-                # Potential source line
-                if 'URL:' in line or 'http' in line:
-                    if 'title' in current_source or 'url' in current_source:
-                        sources.append(current_source.copy())
-                        current_source = {}
-                if 'http' in line:
-                    url_match = re.search(url_pattern, line)
-                    if url_match:
-                        current_source['url'] = url_match.group()
-            elif 'URL:' in line:
-                url_match = re.search(url_pattern, line)
+
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            # Match "[1] Title" (research agent format)
+            numbered = re.match(r'^\[\d+\]\s*(.+)$', stripped)
+            if numbered:
+                if current_source.get('url'):
+                    sources.append(current_source)
+                current_source = {'title': numbered.group(1).strip() or 'Unknown'}
+                continue
+            if stripped.startswith('URL:') or stripped.startswith('url:'):
+                url_match = url_pattern.search(line)
                 if url_match:
-                    current_source['url'] = url_match.group()
-            elif line.strip() and not line.startswith(' ') and ':' not in line[:20]:
-                if not current_source.get('title'):
-                    current_source['title'] = line.strip()
-        
-        if current_source:
+                    current_source['url'] = url_match.group().rstrip('.,;')
+                if current_source.get('title') or current_source.get('url'):
+                    sources.append(current_source)
+                current_source = {}
+                continue
+            # Markdown-style link: [Title](url)
+            md_link = re.search(r'\[([^\]]+)\]\((https?://[^\)]+)\)', line)
+            if md_link:
+                sources.append({'title': md_link.group(1).strip(), 'url': md_link.group(2)})
+                current_source = {}
+
+        if current_source and current_source.get('url'):
             sources.append(current_source)
-        
-        return sources
+
+        # Dedupe by URL, keep first occurrence
+        seen = set()
+        unique = []
+        for s in sources:
+            url = s.get('url', '')
+            if url and url not in seen:
+                seen.add(url)
+                unique.append({'title': s.get('title') or 'Unknown', 'url': url})
+        return unique
     
     def get_conversation_history(self) -> List[Dict[str, Any]]:
         """Get the conversation history."""

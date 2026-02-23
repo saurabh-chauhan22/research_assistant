@@ -74,8 +74,6 @@ class ResearchAgent:
                 logger.error(f"Search failed in Research Agent: {str(e)}")
                 return f"Error: Unable to complete search. {str(e)}"
         
-        # Do NOT pass "functions" in llm_config: API rejects if both "functions" and "tools" are sent.
-        # Tools are added by register_for_llm() below; only tools (not deprecated functions) are used.
         llm_config = {
             "temperature": self.config.get("temperature", 0.3),
             "config_list": [
@@ -86,7 +84,6 @@ class ResearchAgent:
             ]
         }
         
-        # Use AssistantAgent for newer versions, fallback to ConversableAgent
         try:
             self.agent = autogen.AssistantAgent(
                 name=self.config.get("name", "ResearchAgent"),
