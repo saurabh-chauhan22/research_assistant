@@ -1,13 +1,15 @@
 """
 FastAPI search endpoint: accepts a query string and returns research assistant results.
 """
-
+import os
 import asyncio
 import logging
 from pathlib import Path
 from typing import Dict, Any
 
 from fastapi import APIRouter, Query
+from redis import Redis
+
 
 from main import (
     process_query,
@@ -17,10 +19,15 @@ from main import (
     validate_environment,
 )
 from orchestration.workflow import ResearchWorkflow
+from utils.cache import QueryCache
 
 logger = logging.getLogger("research_assistant")
 
 router = APIRouter()
+
+_cache_url = os.getenv("REDIS_URL")
+cache = QueryCache(Redis.from_url(_cache_url)) if _cache_url else None
+
 
 _workflow: ResearchWorkflow | None = None
 
@@ -52,15 +59,23 @@ def get_workflow() -> ResearchWorkflow:
 
 
 @router.get("/search", summary="Research search",description="Run the research assistant on the given query and return the result.",response_model=Dict[str, Any])
-async def search(query: str = Query(..., min_length=1)) -> Dict[str, Any]:
+async def search(query: str = Query(..., min_length=1)):
     """
     Execute a search/research query using the research assistant.
     Accepts a user query string and returns the research result.
     """
     logger.info("Executing search query: %s", query[:80])
+    result = None
     try:
         workflow = get_workflow()
+        if cache is not None and cache.is_cache_available:
+            result = cache.get_cached_result(query)
+            logger.info("Getting cached result ")
+            if result is not None:
+                return result
         result = await asyncio.to_thread(process_query, query, workflow, None, True)
+        if cache is not None and cache.is_cache_available:
+            cache.set_cached_result(query, result)
         return result
     except Exception as e:
         logger.exception("Error executing search query")
